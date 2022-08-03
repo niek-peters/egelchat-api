@@ -7,7 +7,7 @@ export type User = {
 };
 
 export type UserFull = {
-  uuid: string;
+  uuid: Buffer;
   name: string;
   email: string;
   password: string;

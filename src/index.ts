@@ -2,10 +2,9 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 import express from "express";
 import knex from "knex";
+import users from "./routes/users.js";
 
 const app = express();
-
-app.use(express.json());
 
 // Connect to the database
 export const db = knex({
@@ -21,6 +20,12 @@ export const db = knex({
   //   debug: true,
   //   asyncStackTraces: true,
 });
+
+// Middleware
+app.use(express.json());
+
+// Routes
+app.use("/api/users", users);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
