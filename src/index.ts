@@ -3,6 +3,7 @@ dotenv.config({ path: "../.env" });
 import express from "express";
 import knex from "knex";
 import users from "./routes/users.js";
+import auth from "./routes/auth.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", users);
+app.use("/api/auth", auth);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

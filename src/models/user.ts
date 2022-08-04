@@ -1,9 +1,16 @@
 import Joi from "joi";
+import jwt from "jsonwebtoken";
 
 export type User = {
+  uuid: string;
   name: string;
   email: string;
   pf_pic?: string;
+};
+
+export type UserLogin = {
+  email: string;
+  password: string;
 };
 
 export type UserFull = {
@@ -24,4 +31,9 @@ export function validate(user: User) {
   });
 
   return schema.validate(user);
+}
+
+// Generate JSON Web Token
+export function generateAuthToken(user: User): string {
+  return jwt.sign(user, process.env.JWT_PRIVATE_KEY as string);
 }

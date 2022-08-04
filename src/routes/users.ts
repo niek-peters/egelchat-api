@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import pick from "lodash/pick.js";
 import { db } from "../index.js";
 import { createBinaryUUID, fromBinaryUUID, toBinaryUUID } from "binary-uuid";
-import { UserFull, validate } from "../models/user.js";
+import { User, UserFull, validate, generateAuthToken } from "../models/user.js";
 
 const router = express.Router();
 
@@ -34,11 +34,19 @@ router.post("/", async (req, res) => {
 
   await db("Users").insert(user);
 
-  const result = await db("Users").where({ uuid: uuid });
-  let values = pick(result[0], ["uuid", "name", "email"]);
-  values.uuid = fromBinaryUUID(values.uuid);
+  // const result = await db("Users").where({ uuid: uuid });
+  // let values = pick(result[0], ["uuid", "name", "email"]);
+  // values.uuid = fromBinaryUUID(values.uuid);
 
-  res.send(values);
+  let result: User = {
+    uuid: fromBinaryUUID(uuid),
+    name: user.name,
+    email: user.email,
+  };
+
+  const token = generateAuthToken(result);
+
+  res.header("Authorization", "Bearer " + token).send(result);
 });
 
 export default router;
