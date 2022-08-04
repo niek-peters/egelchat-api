@@ -1,10 +1,30 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { db } from "../index.js";
-import { createBinaryUUID, fromBinaryUUID } from "binary-uuid";
-import { User, UserFull, validate, generateAuthToken } from "../models/user.js";
+import { createBinaryUUID, fromBinaryUUID, toBinaryUUID } from "binary-uuid";
+import { User, UserDB, validate, generateAuthToken } from "../models/user.js";
 
 const router = express.Router();
+
+router.get("/:uuid", async (req, res) => {
+  if (!req.params.uuid) return res.status(400).send("Missing uuid parameter");
+
+  const uuid = req.params.uuid;
+  const result: UserDB = (
+    await db("Users").where({ uuid: toBinaryUUID(uuid) })
+  )[0];
+
+  if (!result) return res.status(400).send("User not found");
+
+  const resultFormatted: User = {
+    uuid: fromBinaryUUID(result.uuid),
+    name: result.name,
+    email: result.email,
+    pf_pic: result.pf_pic,
+  };
+
+  res.send(resultFormatted);
+});
 
 router.post("/", async (req, res) => {
   const { error } = validate(req.body);
@@ -22,7 +42,7 @@ router.post("/", async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
 
-  let user: UserFull = {
+  let user: UserDB = {
     uuid: uuid,
     name: req.body.name,
     email: req.body.email,

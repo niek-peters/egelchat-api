@@ -5,6 +5,8 @@ import cors from "cors";
 import knex from "knex";
 import users from "./routes/users.js";
 import auth from "./routes/auth.js";
+import chats from "./routes/chats.js";
+import messages from "./routes/messages.js";
 
 const app = express();
 
@@ -32,6 +34,8 @@ app.use(
 // Routes
 app.use("/api/users", users);
 app.use("/api/auth", auth);
+app.use("/api/chats", chats);
+app.use("/api/messages", messages);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

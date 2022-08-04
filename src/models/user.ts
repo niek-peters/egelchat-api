@@ -13,7 +13,7 @@ export type UserLogin = {
   password: string;
 };
 
-export type UserFull = {
+export type UserDB = {
   uuid: Buffer;
   name: string;
   email: string;
