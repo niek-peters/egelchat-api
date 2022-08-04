@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 import express from "express";
+import cors from "cors";
 import knex from "knex";
 import users from "./routes/users.js";
 import auth from "./routes/auth.js";
@@ -24,6 +25,9 @@ export const db = knex({
 
 // Middleware
 app.use(express.json());
+app.use(
+  cors({ origin: "http://127.0.0.1:5173", exposedHeaders: "Authorization" })
+);
 
 // Routes
 app.use("/api/users", users);
