@@ -29,24 +29,22 @@ router.get("/:chat_uuid", async (req, res) => {
     return res.status(400).send("Missing chat_uuid parameter");
   const chat_uuid = req.params.chat_uuid;
 
-  let result: MessageDBRes;
+  let result: MessageDBRes[];
 
-  result = (
-    await db("Messages").where({
-      chat_uuid: toBinaryUUID(chat_uuid),
-    })
-  )[0];
+  result = await db("Messages").where({
+    chat_uuid: toBinaryUUID(chat_uuid),
+  });
 
-  if (!result)
+  if (!result.length)
     return res.status(400).send("No messages were found for this chat");
 
-  const resultFormatted: Message = {
-    id: result.id,
-    chat_uuid: fromBinaryUUID(result.chat_uuid),
-    sender_uuid: fromBinaryUUID(result.sender_uuid),
-    content: result.content,
-    sent_at: result.sent_at,
-  };
+  const resultFormatted: Message[] = result.map((message) => ({
+    id: message.id,
+    chat_uuid: fromBinaryUUID(message.chat_uuid),
+    sender_uuid: fromBinaryUUID(message.sender_uuid),
+    content: message.content,
+    sent_at: message.sent_at,
+  }));
 
   res.send(resultFormatted);
 });

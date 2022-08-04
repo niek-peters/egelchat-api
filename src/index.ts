@@ -8,23 +8,14 @@ import auth from "./routes/auth.js";
 import chats from "./routes/chats.js";
 import messages from "./routes/messages.js";
 
-const app = express();
-
-// Socket.io initialization
 import http from "http";
-const server = http.createServer(app);
 import { Server } from "socket.io";
-export const io = new Server(server, {
-  cors: {
-    origin: "http://127.0.0.1:5173",
-  },
-});
+import socketAuth from "./sockets/socketAuth.js";
+import saveAndEmitMessage from "./sockets/message.js";
+import { Message } from "./models/message.js";
 
-io.use
-
-io.on("connection", (socket) => {
-  console.log("User connected");
-});
+const app = express();
+const server = http.createServer(app);
 
 // Connect to the database
 export const db = knex({
@@ -52,6 +43,26 @@ app.use("/api/users", users);
 app.use("/api/auth", auth);
 app.use("/api/chats", chats);
 app.use("/api/messages", messages);
+
+// Socket.io initialization
+export const io = new Server(server, {
+  cors: {
+    origin: "http://127.0.0.1:5173",
+  },
+});
+
+io.use(socketAuth);
+
+io.on("connection", (socket) => {
+  console.log("User connected", socket.handshake.auth);
+
+  const defaultChatUUID = "acdf90a0-1408-11ed-8f13-436d0cf1e378";
+  socket.join(defaultChatUUID);
+
+  socket.on("message", (message: Message) => {
+    saveAndEmitMessage(socket, message);
+  });
+});
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {

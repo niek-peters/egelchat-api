@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
 
   const token = generateAuthToken(result);
 
-  res.header("Authorization", token).send(result);
+  res.header("Authorization", "Bearer " + token).send(result);
 });
 
 export default router;
