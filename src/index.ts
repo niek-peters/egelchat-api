@@ -10,6 +10,22 @@ import messages from "./routes/messages.js";
 
 const app = express();
 
+// Socket.io initialization
+import http from "http";
+const server = http.createServer(app);
+import { Server } from "socket.io";
+export const io = new Server(server, {
+  cors: {
+    origin: "http://127.0.0.1:5173",
+  },
+});
+
+io.use
+
+io.on("connection", (socket) => {
+  console.log("User connected");
+});
+
 // Connect to the database
 export const db = knex({
   client: "mysql2",
@@ -38,6 +54,6 @@ app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });
