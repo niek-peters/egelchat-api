@@ -54,10 +54,17 @@ export const io = new Server(server, {
 io.use(socketAuth);
 
 io.on("connection", (socket) => {
-  console.log("User connected", socket.handshake.auth);
+  // console.log("User connected", socket.handshake.auth);
 
   const defaultChatUUID = "acdf90a0-1408-11ed-8f13-436d0cf1e378";
   socket.join(defaultChatUUID);
+
+  socket.on("chat_join", async (chatUUID: string) => {
+    for (let room of socket.rooms) {
+      await socket.leave(room);
+    }
+    socket.join(chatUUID);
+  });
 
   socket.on("message", (message: Message) => {
     saveAndEmitMessage(socket, message);

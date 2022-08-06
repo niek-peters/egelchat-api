@@ -36,7 +36,7 @@ router.get("/:chat_uuid", async (req, res) => {
   });
 
   if (!result.length)
-    return res.status(400).send("No messages were found for this chat");
+    return res.status(204).send("No messages were found for this chat");
 
   const resultFormatted: Message[] = result.map((message) => ({
     id: message.id,
