@@ -37,3 +37,17 @@ export function validate(user: User) {
 export function generateAuthToken(user: User): string {
   return jwt.sign(user, process.env.JWT_PRIVATE_KEY as string);
 }
+
+// Validate JSON Web Token
+export function validateAuthToken(token: string): boolean {
+  try {
+    if (!token.includes("Bearer ")) return false;
+    jwt.verify(
+      token.replace("Bearer ", ""),
+      process.env.JWT_PRIVATE_KEY as string
+    );
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
