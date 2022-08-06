@@ -7,6 +7,7 @@ import {
   MessageDBRes,
   validate,
 } from "../models/message.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -49,7 +50,7 @@ router.get("/:chat_uuid", async (req, res) => {
   res.send(resultFormatted);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 

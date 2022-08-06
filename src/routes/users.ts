@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import { db } from "../index.js";
 import { createBinaryUUID, fromBinaryUUID, toBinaryUUID } from "binary-uuid";
 import { User, UserDB, validate, generateAuthToken } from "../models/user.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/:uuid", async (req, res) => {
+router.get("/:uuid", auth, async (req, res) => {
   if (!req.params.uuid) return res.status(400).send("Missing uuid parameter");
 
   const uuid = req.params.uuid;

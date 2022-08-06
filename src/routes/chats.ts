@@ -2,10 +2,11 @@ import express from "express";
 import { db } from "../index.js";
 import { createBinaryUUID, toBinaryUUID, fromBinaryUUID } from "binary-uuid";
 import { Chat, ChatDB, validate } from "../models/chat.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", auth, async (_req, res) => {
   const result: ChatDB[] = await db("Chats");
 
   const resultFormatted: Chat[] = result.map((message) => ({
@@ -17,7 +18,7 @@ router.get("/", async (_req, res) => {
   res.send(resultFormatted);
 });
 
-router.get("/:uuid", async (req, res) => {
+router.get("/:uuid", auth, async (req, res) => {
   if (!req.params.uuid) return res.status(400).send("Missing uuid parameter");
 
   const result: ChatDB = (
@@ -37,7 +38,7 @@ router.get("/:uuid", async (req, res) => {
   res.send(resultFormatted);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 

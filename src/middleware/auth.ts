@@ -10,7 +10,10 @@ export default function auth(req: Request, res: Response, next: NextFunction) {
   if (!validateAuthToken(token))
     return res.status(401).send("Invalid auth token");
 
-  const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY as string);
+  const decoded = jwt.verify(
+    token.replace("Bearer ", ""),
+    process.env.JWT_PRIVATE_KEY as string
+  );
 
   res.locals.user = decoded;
   next();
