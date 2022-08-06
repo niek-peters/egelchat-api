@@ -7,6 +7,7 @@ import users from "./routes/users.js";
 import auth from "./routes/auth.js";
 import chats from "./routes/chats.js";
 import messages from "./routes/messages.js";
+import ping from "./routes/ping.js";
 
 import http from "http";
 import { Server } from "socket.io";
@@ -43,6 +44,7 @@ app.use("/api/users", users);
 app.use("/api/auth", auth);
 app.use("/api/chats", chats);
 app.use("/api/messages", messages);
+app.use("/api/ping", ping);
 
 // Socket.io initialization
 export const io = new Server(server, {
