@@ -9,11 +9,23 @@ const router = express.Router();
 router.get("/", auth, async (_req, res) => {
   const result: ChatDB[] = await db("Chats");
 
-  const resultFormatted: Chat[] = result.map((message) => ({
-    uuid: fromBinaryUUID(message.uuid),
-    owner_uuid: fromBinaryUUID(message.owner_uuid),
-    name: message.name,
-  }));
+  const resultFormatted: Chat[] = await Promise.all(
+    result.map(async (chat) => {
+      if (!chat.owner_uuid) {
+        const egelchat_uuid: string = (
+          await db("Users").where({ name: "Egelchat" }).select("uuid")
+        )[0];
+
+        chat.owner_uuid = toBinaryUUID(egelchat_uuid);
+      }
+
+      return {
+        uuid: fromBinaryUUID(chat.uuid),
+        owner_uuid: fromBinaryUUID(chat.owner_uuid),
+        name: chat.name,
+      };
+    })
+  );
 
   res.send(resultFormatted);
 });
@@ -28,6 +40,14 @@ router.get("/:uuid", auth, async (req, res) => {
   )[0];
 
   if (!result) return res.status(400).send("Chat not found");
+
+  if (!result.owner_uuid) {
+    const egelchat_uuid: string = (
+      await db("Users").where({ name: "Egelchat" }).select("uuid")
+    )[0];
+
+    result.owner_uuid = toBinaryUUID(egelchat_uuid);
+  }
 
   const resultFormatted: Chat = {
     uuid: fromBinaryUUID(result.uuid),

@@ -124,9 +124,6 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   if (req.body.pf_pic && req.body.pf_pic !== userCurrent.pf_pic)
     userCurrent.pf_pic = req.body.pf_pic;
 
-  console.log(userBefore);
-  console.log(userCurrent);
-
   if (JSON.stringify(userBefore) === JSON.stringify(userCurrent))
     return res.status(400).send("Nothing changed");
 
@@ -149,6 +146,8 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
 // We don't need a uuid query parameter, because we get user from the sameUser middleware
 router.delete("/", [auth, sameUser], async (_req: Request, res: Response) => {
   const uuid = res.locals.user.uuid;
+
+  console.log(uuid);
 
   await db("Users")
     .where({ uuid: toBinaryUUID(uuid) })
