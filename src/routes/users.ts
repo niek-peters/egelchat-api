@@ -79,7 +79,10 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   const { error } = validatePut(req.body);
   if (error) return res.status(400).send(error.message);
 
-  if (!(req.body.password && req.body.new_password))
+  if (
+    (req.body.password || req.body.newPassword) &&
+    !(req.body.password && req.body.new_password)
+  )
     return res.status(400).send("Current password and new password required.");
 
   if (!(req.body.name || req.body.password))
