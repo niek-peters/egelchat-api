@@ -3,11 +3,18 @@ dotenv.config({ path: "../.env" });
 import express from "express";
 import cors from "cors";
 import knex from "knex";
+
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import users from "./routes/users.js";
 import auth from "./routes/auth.js";
 import chats from "./routes/chats.js";
 import messages from "./routes/messages.js";
 import ping from "./routes/ping.js";
+import images from "./routes/images.js";
 
 import http from "http";
 import { Server } from "socket.io";
@@ -38,6 +45,7 @@ app.use(express.json());
 app.use(
   cors({ origin: "http://127.0.0.1:5173", exposedHeaders: "Authorization" })
 );
+app.use(express.static(path.resolve(__dirname, "../public")));
 
 // Routes
 app.use("/api/users", users);
@@ -45,6 +53,7 @@ app.use("/api/auth", auth);
 app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 app.use("/api/ping", ping);
+app.use("/api/images", images);
 
 // Socket.io initialization
 export const io = new Server(server, {

@@ -14,6 +14,8 @@ export default function sameUser(
   if (req.body.uuid === user.uuid) next();
   else if (req.body.sender_uuid === user.uuid) next();
   else if (req.body.owner_uuid === user.uuid) next();
+  else if (!(req.body.uuid || req.body.sender_uuid || req.body.owner_uuid))
+    next();
   else
     return res
       .status(403)
