@@ -75,6 +75,7 @@ router.post("/", async (req: Request, res: Response) => {
   res.header("Authorization", "Bearer " + token).send(result);
 });
 
+// We don't need a uuid query parameter, because we get user from the sameUser middleware
 router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   const { error } = validatePut(req.body);
   if (error) return res.status(400).send(error.message);
@@ -143,6 +144,17 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   const token = generateAuthToken(result);
 
   res.header("Authorization", "Bearer " + token).send(result);
+});
+
+// We don't need a uuid query parameter, because we get user from the sameUser middleware
+router.delete("/", [auth, sameUser], async (_req: Request, res: Response) => {
+  const uuid = res.locals.user.uuid;
+
+  await db("Users")
+    .where({ uuid: toBinaryUUID(uuid) })
+    .del();
+
+  res.send("User deleted");
 });
 
 export default router;
