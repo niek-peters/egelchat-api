@@ -1,13 +1,23 @@
 import express from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../index.js";
 import { createBinaryUUID, fromBinaryUUID, toBinaryUUID } from "binary-uuid";
-import { User, UserDB, validate, generateAuthToken } from "../models/user.js";
+import {
+  User,
+  UserDB,
+  validate,
+  validatePut,
+  generateAuthToken,
+} from "../models/user.js";
 import auth from "../middleware/auth.js";
+import sameUser from "../middleware/same-user.js";
+import pick from "lodash/pick.js";
+import clone from "lodash/clone.js";
 
 const router = express.Router();
 
-router.get("/:uuid", auth, async (req, res) => {
+router.get("/:uuid", auth, async (req: Request, res: Response) => {
   if (!req.params.uuid) return res.status(400).send("Missing uuid parameter");
 
   const uuid = req.params.uuid;
@@ -27,7 +37,7 @@ router.get("/:uuid", auth, async (req, res) => {
   res.send(resultFormatted);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 
@@ -58,6 +68,65 @@ router.post("/", async (req, res) => {
     uuid: fromBinaryUUID(uuid),
     name: user.name,
     email: user.email,
+  };
+
+  const token = generateAuthToken(result);
+
+  res.header("Authorization", "Bearer " + token).send(result);
+});
+
+router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
+  const { error } = validatePut(req.body);
+  if (error) return res.status(400).send(error.message);
+
+  const uuid = res.locals.user.uuid;
+
+  let userCurrent: UserDB = (
+    await db("Users").where({ uuid: toBinaryUUID(uuid) })
+  )[0];
+  if (!userCurrent) return res.status(400).send("User not found");
+
+  const validPassword = await bcrypt.compare(
+    req.body.password,
+    userCurrent.password
+  );
+  if (!validPassword) return res.status(400).send("Invalid password.");
+
+  const userBefore: UserDB = clone(userCurrent);
+
+  // If the user changed their username, check if the new username is already taken.
+  if (req.body.name !== userCurrent.name) {
+    let nameTaken = await db("Users").where({ name: req.body.name });
+    if (nameTaken.length)
+      return res.status(400).send("Username is already taken.");
+    userCurrent.name = req.body.name;
+  }
+
+  // If the user changed their password
+  if (req.body.password !== req.body.newPassword) {
+    const salt = await bcrypt.genSalt(10);
+    userCurrent.password = await bcrypt.hash(req.body.newPassword, salt);
+  }
+
+  // If the user changed their pf_pic
+  if (req.body.pf_pic && req.body.pf_pic !== userCurrent.pf_pic)
+    userCurrent.pf_pic = req.body.pf_pic;
+
+  console.log(userBefore);
+  console.log(userCurrent);
+
+  if (JSON.stringify(userBefore) === JSON.stringify(userCurrent))
+    return res.status(400).send("Nothing changed");
+
+  await db("Users")
+    .update(pick(userCurrent, ["name", "password", "pf_pic"]))
+    .where({ uuid: toBinaryUUID(uuid) });
+
+  const result: User = {
+    uuid: fromBinaryUUID(userCurrent.uuid),
+    name: userCurrent.name,
+    email: userCurrent.email,
+    pf_pic: userCurrent.pf_pic,
   };
 
   const token = generateAuthToken(result);

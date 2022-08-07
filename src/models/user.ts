@@ -8,6 +8,14 @@ export type User = {
   pf_pic?: string;
 };
 
+export type UserPut = {
+  uuid: string;
+  name: string;
+  password: string;
+  newPassword: string;
+  pf_pic?: string;
+};
+
 export type UserLogin = {
   email: string;
   password: string;
@@ -27,6 +35,18 @@ export function validate(user: User) {
     name: Joi.string().required().min(3).max(255),
     email: Joi.string().email().required().min(3).max(255),
     password: Joi.string().required().min(3).max(255),
+    pf_pic: Joi.string().uri().allow("").min(3).max(255),
+  });
+
+  return schema.validate(user);
+}
+
+export function validatePut(user: UserPut) {
+  const schema = Joi.object({
+    uuid: Joi.string().required().min(3).max(255),
+    name: Joi.string().required().min(3).max(255),
+    password: Joi.string().required().min(3).max(255),
+    newPassword: Joi.string().required().min(3).max(255),
     pf_pic: Joi.string().uri().allow("").min(3).max(255),
   });
 
