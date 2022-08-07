@@ -79,23 +79,31 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   const { error } = validatePut(req.body);
   if (error) return res.status(400).send(error.message);
 
+  if (!(req.body.password && req.body.new_password))
+    return res.status(400).send("Current password and new password required.");
+
+  if (!(req.body.name || req.body.password))
+    return res.status(400).send("No new values provided.");
+
   const uuid = res.locals.user.uuid;
 
   let userCurrent: UserDB = (
     await db("Users").where({ uuid: toBinaryUUID(uuid) })
   )[0];
-  if (!userCurrent) return res.status(400).send("User not found");
+  if (!userCurrent) return res.status(400).send("User not found.");
 
-  const validPassword = await bcrypt.compare(
-    req.body.password,
-    userCurrent.password
-  );
-  if (!validPassword) return res.status(400).send("Invalid password.");
+  if (req.body.password) {
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      userCurrent.password
+    );
+    if (!validPassword) return res.status(400).send("Invalid password.");
+  }
 
   const userBefore: UserDB = clone(userCurrent);
 
   // If the user changed their username, check if the new username is already taken.
-  if (req.body.name !== userCurrent.name) {
+  if (req.body.name && req.body.name !== userCurrent.name) {
     let nameTaken = await db("Users").where({ name: req.body.name });
     if (nameTaken.length)
       return res.status(400).send("Username is already taken.");
@@ -103,9 +111,9 @@ router.put("/", [auth, sameUser], async (req: Request, res: Response) => {
   }
 
   // If the user changed their password
-  if (req.body.password !== req.body.newPassword) {
+  if (req.body.password && req.body.password !== req.body.new_password) {
     const salt = await bcrypt.genSalt(10);
-    userCurrent.password = await bcrypt.hash(req.body.newPassword, salt);
+    userCurrent.password = await bcrypt.hash(req.body.new_password, salt);
   }
 
   // If the user changed their pf_pic

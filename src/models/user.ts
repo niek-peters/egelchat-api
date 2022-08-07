@@ -44,9 +44,9 @@ export function validate(user: User) {
 export function validatePut(user: UserPut) {
   const schema = Joi.object({
     uuid: Joi.string().required().min(3).max(255),
-    name: Joi.string().required().min(3).max(255),
-    password: Joi.string().required().min(3).max(255),
-    newPassword: Joi.string().required().min(3).max(255),
+    name: Joi.string().min(3).max(255),
+    password: Joi.string().min(3).max(255),
+    new_password: Joi.string().min(3).max(255),
     pf_pic: Joi.string().uri().allow("").min(3).max(255),
   });
 
