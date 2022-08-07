@@ -12,11 +12,11 @@ router.get("/", auth, async (_req, res) => {
   const resultFormatted: Chat[] = await Promise.all(
     result.map(async (chat) => {
       if (!chat.owner_uuid) {
-        const egelchat_uuid: string = (
+        const egelchat_uuid: Buffer = (
           await db("Users").where({ name: "Egelchat" }).select("uuid")
         )[0];
 
-        chat.owner_uuid = toBinaryUUID(egelchat_uuid);
+        chat.owner_uuid = egelchat_uuid;
       }
 
       return {
@@ -42,11 +42,11 @@ router.get("/:uuid", auth, async (req, res) => {
   if (!result) return res.status(400).send("Chat not found");
 
   if (!result.owner_uuid) {
-    const egelchat_uuid: string = (
+    const egelchat_uuid: Buffer = (
       await db("Users").where({ name: "Egelchat" }).select("uuid")
     )[0];
 
-    result.owner_uuid = toBinaryUUID(egelchat_uuid);
+    result.owner_uuid = egelchat_uuid;
   }
 
   const resultFormatted: Chat = {
