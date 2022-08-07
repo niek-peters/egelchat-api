@@ -32,10 +32,10 @@ export type UserDB = {
 // Validate incoming api calls
 export function validate(user: User) {
   const schema = Joi.object({
-    name: Joi.string().required().min(3).max(255),
+    name: Joi.string().required().min(3).max(24),
     email: Joi.string().email().required().min(3).max(255),
-    password: Joi.string().required().min(3).max(255),
-    pf_pic: Joi.string().uri().allow("").min(3).max(255),
+    password: Joi.string().required().min(3).max(63),
+    pf_pic: Joi.string().uri().allow("").min(3).max(63),
   });
 
   return schema.validate(user);
@@ -43,11 +43,11 @@ export function validate(user: User) {
 
 export function validatePut(user: UserPut) {
   const schema = Joi.object({
-    uuid: Joi.string().required().min(3).max(255),
-    name: Joi.string().min(3).max(255),
-    password: Joi.string().min(3).max(255),
-    new_password: Joi.string().min(3).max(255),
-    pf_pic: Joi.string().uri().allow("").min(3).max(255),
+    uuid: Joi.string().required().length(36),
+    name: Joi.string().min(3).max(24),
+    password: Joi.string().min(3).max(63),
+    new_password: Joi.string().min(3).max(63),
+    pf_pic: Joi.string().uri().allow("").min(3).max(63),
   });
 
   return schema.validate(user);

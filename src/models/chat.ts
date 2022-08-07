@@ -15,8 +15,8 @@ export type ChatDB = {
 // Validate incoming api calls
 export function validate(chat: Chat) {
   const schema = Joi.object({
-    owner_uuid: Joi.string().required().min(3).max(255),
-    name: Joi.string().required().min(3).max(255),
+    owner_uuid: Joi.string().required().length(36),
+    name: Joi.string().required().min(3).max(24),
   });
 
   return schema.validate(chat);

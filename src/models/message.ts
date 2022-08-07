@@ -31,8 +31,8 @@ export type MessageDBRes = {
 // Validate incoming api calls
 export function validate(message: Message) {
   const schema = Joi.object({
-    chat_uuid: Joi.string().required().min(3).max(255),
-    sender_uuid: Joi.string().required().min(3).max(255),
+    chat_uuid: Joi.string().required().length(36),
+    sender_uuid: Joi.string().required().length(36),
     content: Joi.string().required().min(3).max(65535),
     // YYYY-MM-DD hh:mm:ss
     sent_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
